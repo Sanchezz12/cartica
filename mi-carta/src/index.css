@@ -1,0 +1,40 @@
+body {
+  margin: 0;
+  font-family: 'Georgia', serif;
+  background: #fefcf9;
+  color: #333;
+}
+
+.header {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(120deg, #f7d9d9, #dbe8f4);
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.carta {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  line-height: 1.6;
+}
+
+.map {
+  height: 500px;
+  width: 90%;
+  border-radius: 20px;
+  margin: 2rem auto;
+  max-width: 1000px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+}
