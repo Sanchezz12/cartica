@@ -4,7 +4,7 @@ import { viteStaticCopy } from 'vite-plugin-static-copy'
 export default defineConfig({
   base: '/cartica/', // 👈 usa el nombre exacto del repo
   build: {
-    outDir: 'docs', // 👈 si usas docs, GitHub Pages lo detecta fácil
+    outDir: 'dist', // 👈 si usas docs, GitHub Pages lo detecta fácil
   },
   plugins: [
     viteStaticCopy({
