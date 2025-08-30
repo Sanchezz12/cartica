@@ -2,15 +2,15 @@ import { defineConfig } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig({
-  base: './',
+  base: '/cartica/', // 👈 usa el nombre exacto del repo
   build: {
-    outDir: 'docs'
+    outDir: 'docs', // 👈 si usas docs, GitHub Pages lo detecta fácil
   },
   plugins: [
     viteStaticCopy({
       targets: [
         {
-          src: '.nojekyll',
+          src: '.nojekyll', // 👈 evita problemas con archivos estáticos
           dest: '.'
         }
       ]
