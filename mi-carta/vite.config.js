@@ -1,11 +1,19 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  base: './',
   build: {
-    outDir: 'docs',   // 👈 aquí le decimos que genere la carpeta docs
+    outDir: 'docs'
   },
-  base: './',         // 👈 importante para GitHub Pages
+  plugins: [
+    viteStaticCopy({
+      targets: [
+        {
+          src: '.nojekyll',
+          dest: '.'
+        }
+      ]
+    })
+  ]
 })
