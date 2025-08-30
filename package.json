@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
   }
 }
