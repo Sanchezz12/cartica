@@ -11,7 +11,7 @@ function Mapa2() {
     }).addTo(map);
 
     const lugares = [
-  { nombre: "Takamar Sushi - Mall San Lucas", coords: [6.2054, -75.5795] },
+  { nombre: "Takamar Sushi - Mall San Lucas", coords: [6.1806623, -75.5795] },
   { nombre: "Gimnasio Smart Fit - La Intermedia", coords: [6.1675, -75.5919] },
   { nombre: "Cinépolis City Plaza", coords: [6.1792, -75.5923] },
   { nombre: "Centro Comercial Viva Envigado", coords: [6.1763, -75.5917] },
@@ -24,7 +24,6 @@ function Mapa2() {
   { nombre: "Biela Bakery", coords: [6.2044, -75.5611] },
   { nombre: "El Diamante (Estadio Atanasio Girardot)", coords: [6.2569, -75.5906] }
 ];
-
 
     lugares.forEach(lugar => {
       L.marker(lugar.coords).addTo(map).bindPopup(`<b>${lugar.nombre}</b>`);
