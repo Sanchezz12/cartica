@@ -28,16 +28,17 @@ function Carta() {
 
       <p>
         También me llena de orgullo ver cómo has enfrentado los retos de este último año: en lo profesional, en la salud de tu mamá, 
-        en tu propia salud, en los cambios físicos que has atravesado y hasta en las diferencias que hemos tenido como pareja. 
-        En todo ello he visto a una mujer que, lejos de rendirse, se ha mantenido firme en Dios. Y lo que más me sorprende es que, 
-        en lugar de alejarte o cuestionarlo, has tomado cada desafío como una oportunidad para acercarte aún más a él y has podido 
-        ver nuevamente su presencia en tu vida y como te ha acompañado. 
+        en tu propia salud, en los cambios físicos que has atravesado y hasta en las diferencias que hemos tenido como pareja. Tu misma
+        te has dado cuenta lo que has avanzado en la manera en que afrontas las dificultades y me alegra muchísimo ver ese crecimiento en ti
+        ,te lo has propuesto y lo estás logrando. En todo ello he visto a una mujer que, lejos de rendirse, se ha mantenido firme en Dios. 
+        Y lo que más me sorprende es que, en lugar de alejarte o irte, has tomado cada desafío como una oportunidad para acercarte aún más
+        a él y has podido ver nuevamente su presencia en tu vida y como te ha acompañado. 
       </p>
 
       <p>
         Has sido de una mujer de fe inquebrantable y eso me parece profundamente admirable y como tú, estoy convencido que es una gran decisión 
         y que seguirás viendo cómo va a guiar tu vida por siempre: has encontrado el camino. También es normal si en algún momento llegas a sentir 
-        tu fe debilitada, somos humanos, pero veo que eres una persona que volverá a buscar y a intentarlo una y otra vez.
+        tu fe debilitada, somos humanos, pero veo que eres una persona que volverá a buscar y a intentarlo una y otra vez
       </p>
 
       <p>
@@ -57,16 +58,17 @@ function Carta() {
       </p>
 
       <p>
-        Solo me queda agradecerte con todo mi corazón. Eres una mujer excepcional y única, irremplazable, con un corazón noble y hermoso. 
-        En ti veo una prueba viva de la gracia de Dios, y no me queda más que agradecerle por tu vida y agradecerte a ti por permitirme conocerte. 
+        Solo me queda agradecerte con todo mi corazón. Eres una mujer excepcional y única, irremplazable, con un corazón noble y hermoso. Eres mi alegría, 
+        mi lugar seguro, mi paz. En ti veo una prueba viva de la gracia de Dios, y no me queda más que agradecerle por tu vida y agradecerte a ti por permitirme conocerte. 
         Deseo poder acompañarte por mucho tiempo, aportarte, apoyarte y vivir juntos todos esos planes que soñamos. Quiero estar siempre para ti: 
-        para celebrar tus logros, pero sobre todo para sostenerte en los momentos en que más me necesites.
+        para celebrar tus logros, pero sobre todo para estar a tu lado en los momentos en que más me necesites 
       </p>
 
       <p>
         Hoy mis sueños quizás no estén del todo definidos, pero todos tienen algo en común: tu imagen allí, nuestra imagen allí. 
-        Estoy convencido de que podemos cumplirlos juntos, y por eso celebrar tu vida es también celebrar la mía: mis sueños.  
-        Feliz cumpleaños, mi princesa. Que Dios te siga colmando de bendiciones y de capacidad para reconocer tu valor.  
+        Estoy convencido de que podemos cumplirlos juntos. Eres parte fundamental de mi vida, y por eso celebrar tu vida es también celebrar la mía.
+        Feliz cumpleaños, mi princesa. Que Dios te siga llenando de bendiciones y de capacidad para reconocer tu valor. Espero seguir 
+        a tu lado, aprendiendo de ti y amándote cada día más y poder seguir festejando tu cumpleaños por siempre
         <strong>Te amo con todo mi corazón.</strong>
       </p>
     </div>

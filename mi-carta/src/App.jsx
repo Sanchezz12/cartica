@@ -1,13 +1,15 @@
-import React from "react";
+// src/App.jsx
+import React, { useState } from "react";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import {
   CssBaseline, Container, Box, Paper, Stack, Typography, Chip,
-  Divider, IconButton
+  Divider, IconButton, Tooltip, Switch, FormControlLabel
 } from "@mui/material";
 import FavoriteRoundedIcon from "@mui/icons-material/FavoriteRounded";
 import CakeRoundedIcon from "@mui/icons-material/CakeRounded";
 import PlaceRoundedIcon from "@mui/icons-material/PlaceRounded";
 import ShareRoundedIcon from "@mui/icons-material/ShareRounded";
+import PhotoRoundedIcon from "@mui/icons-material/PhotoRounded";
 
 import "@fontsource/quicksand/500.css";
 import "@fontsource/quicksand/700.css";
@@ -21,17 +23,15 @@ import "./index.css";
 const theme = createTheme({
   palette: {
     mode: "light",
-    primary: { main: "#ff8fab" },   // rosado pastel
-    secondary: { main: "#a5b4fc" }, // lila pastel
+    primary: { main: "#ff8fab" },
+    secondary: { main: "#a5b4fc" },
     background: { default: "transparent", paper: "rgba(255,255,255,0.10)" },
-    text: { primary: "#2d2a3a" },   // contraste
+    text: { primary: "#2d2a3a" },
   },
   shape: { borderRadius: 18 },
   typography: {
     fontFamily: '"Quicksand", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial',
-    h1: { fontWeight: 800 },
-    h2: { fontWeight: 700 },
-    h5: { fontWeight: 700 },
+    h1: { fontWeight: 800 }, h2: { fontWeight: 700 }, h5: { fontWeight: 700 },
     button: { textTransform: "none", fontWeight: 700 },
   },
   components: {
@@ -46,28 +46,47 @@ const theme = createTheme({
         },
       },
     },
-    MuiChip: {
-      styleOverrides: { root: { fontWeight: 700 } },
-    },
+    MuiChip: { styleOverrides: { root: { fontWeight: 700 } } },
   },
 });
 
 export default function App() {
+  const [usePonyo, setUsePonyo] = useState(true);
+
+  // ✅ ruta segura a public/ incluso en subcarpetas (GitHub Pages, etc.)
+  const ponyoURL = `${import.meta.env.BASE_URL}ponyo.png`;
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
 
-      {/* Fondo pastel suave */}
+      {/* Fondo: Ponyo desde /public o gradiente pastel */}
       <Box
         sx={{
-          position: "fixed", inset: 0, zIndex: -2,
-          background: "linear-gradient(180deg, rgba(255,240,244,0.9) 0%, rgba(231,240,255,0.92) 100%)",
+          position: "fixed",
+          inset: 0,
+          zIndex: -2,
+          ...(usePonyo
+            ? {
+                background: `url("${ponyoURL}") center/cover no-repeat fixed`,
+                transform: "scale(1.02)",
+              }
+            : {
+                background:
+                  "linear-gradient(180deg, rgba(255,240,244,0.9) 0%, rgba(231,240,255,0.92) 100%)",
+              }),
         }}
       />
+      {/* Velo (un poco más claro para que se vea la foto) */}
       <Box
         sx={{
-          position: "fixed", inset: 0, zIndex: -1,
-          background: "radial-gradient(800px 400px at 85% 10%, rgba(255,255,255,.14), transparent 60%)",
+          position: "fixed",
+          inset: 0,
+          zIndex: -1,
+          background: usePonyo
+            ? `radial-gradient(1100px 520px at 80% 10%, rgba(255,255,255,.10), transparent 60%),
+               linear-gradient(to bottom, rgba(12,12,20,.28), rgba(12,12,20,.38))`
+            : `radial-gradient(800px 400px at 85% 10%, rgba(255,255,255,.14), transparent 60%)`,
           backdropFilter: "blur(2px) saturate(110%)",
         }}
       />
@@ -75,15 +94,41 @@ export default function App() {
       <Container maxWidth="md" sx={{ py: { xs: 3, md: 5 } }}>
         <Stack spacing={2.5}>
           {/* Header */}
-          <Paper sx={{ p: { xs: 2, md: 3 }, textAlign: "center" }}>
-            <Stack direction="row" spacing={1} justifyContent="center" alignItems="center" sx={{ mb: 0.5 }}>
-              <CakeRoundedIcon />
-              <Typography component="h1" variant="h4" sx={{ fontWeight: 800, letterSpacing: ".3px" }}>
-                Feliz cumpleaños 23 mi niña
-              </Typography>
-              <FavoriteRoundedIcon />
+          <Paper sx={{ p: { xs: 2, md: 3 } }}>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={1}
+              justifyContent="space-between"
+              alignItems={{ xs: "flex-start", sm: "center" }}
+            >
+              <Stack direction="row" spacing={1} alignItems="center">
+                <CakeRoundedIcon />
+                <Typography component="h1" variant="h4" sx={{ fontWeight: 800, letterSpacing: ".3px" }}>
+                  Feliz cumpleaños, mi niña
+                </Typography>
+                <FavoriteRoundedIcon />
+              </Stack>
+
+              {/* Toggle Ponyo/Pastel */}
+              <Stack direction="row" spacing={1} alignItems="center">
+                <Tooltip title={usePonyo ? "Usando fondo Ponyo" : "Usando fondo pastel"}>
+                  <PhotoRoundedIcon />
+                </Tooltip>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      color="secondary"
+                      checked={usePonyo}
+                      onChange={() => setUsePonyo((v) => !v)}
+                    />
+                  }
+                  label={usePonyo ? "Ponyo" : "Pastel"}
+                  sx={{ m: 0 }}
+                />
+              </Stack>
             </Stack>
-            <Typography variant="body2" sx={{ opacity: .9 }}>
+
+            <Typography variant="body2" sx={{ opacity: .9, mt: 0.5 }}>
               23 lugares, un corazón y miles de recuerdos
             </Typography>
           </Paper>
@@ -95,7 +140,7 @@ export default function App() {
               gutterBottom
               sx={{ fontFamily: '"Caveat", cursive', fontSize: { xs: 28, md: 32 } }}
             >
-              Cartita para recordar lo valiosa que eres ✍️
+              Cartita para ti ✍️
             </Typography>
             <Divider sx={{ my: 1.5, opacity: .3 }} />
             <Carta />
@@ -107,7 +152,7 @@ export default function App() {
               <Stack direction="row" spacing={1.2} alignItems="center">
                 <PlaceRoundedIcon />
                 <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                  23 de Nuestros lugares
+                  Nuestros lugares
                 </Typography>
                 <IconButton size="small" color="secondary" aria-label="compartir" sx={{ ml: -0.5 }}>
                   <ShareRoundedIcon fontSize="small" />
@@ -131,7 +176,7 @@ export default function App() {
 
               {/* badge arriba-derecha */}
               <Chip
-                label="23 de nuestros lugares 💖"
+                label="23 lugares 💖"
                 color="secondary"
                 size="small"
                 sx={{
@@ -148,7 +193,7 @@ export default function App() {
 
           {/* Footer */}
           <Paper sx={{ p: 2, textAlign: "center" }}>
-            <Typography variant="body2">Hecho con amor💕</Typography>
+            <Typography variant="body2">Hecho con 💕 desde Medellín</Typography>
           </Paper>
         </Stack>
       </Container>
