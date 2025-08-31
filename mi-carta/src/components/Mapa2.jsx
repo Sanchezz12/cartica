@@ -52,7 +52,7 @@ function Mapa2() {
             console.warn(`No se encontraron coordenadas para: ${lugar.nombre}`);
           }
         })
-        .catch(error => console.error(`Error al geocodificar ${lugar.nombre}:`, error));
+        .catch(error => console.error(`Error al geooocodificar ${lugar.nombre}:`, error));
     });
 
     return () => map.remove();
