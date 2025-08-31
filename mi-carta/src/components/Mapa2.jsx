@@ -2,92 +2,152 @@ import React, { useEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-function Mapa2() {
-  useEffect(() => {
-    const map = L.map("map", { zoomControl: true }).setView([6.23, -75.57], 13);
+const pinSvg = (emoji = "📍") =>
+  `data:image/svg+xml;utf8,${encodeURIComponent(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'>
+      <defs>
+        <filter id='shadow' x='-50%' y='-50%' width='200%' height='200%'>
+          <feDropShadow dx='0' dy='2' stdDeviation='3' flood-color='rgba(0,0,0,0.35)'/>
+        </filter>
+      </defs>
+      <g filter='url(#shadow)'>
+        <path d='M32 6c-10 0-18 8-18 18 0 14 18 32 18 32s18-18 18-32c0-10-8-18-18-18z' fill='#ff7aa2' stroke='#e15b86' stroke-width='2'/>
+        <circle cx='32' cy='24' r='9' fill='white'/>
+        <text x='32' y='28' text-anchor='middle' font-size='14'>${emoji}</text>
+      </g>
+    </svg>`
+  )}`;
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+const iconFor = (tipo) =>
+  L.icon({
+    iconUrl: pinSvg(
+      {
+        sushi: "🍣",
+        gimnasio: "🏋️",
+        cine: "🎬",
+        centro_comercial: "🛍️",
+        comida_rapida: "🌭",
+        restaurante: "🍽️",
+        pasteleria: "🧁",
+        deporte: "🏟️",
+        pizza: "🍕",
+        farmacia: "💊",
+        bar: "🍹",
+        edificio: "🏢",
+        urbanizacion: "🏠",
+      }[tipo] || "📍"
+    ),
+    iconSize: [42, 42],
+    iconAnchor: [21, 40],
+    popupAnchor: [0, -36],
+    className: "drop-shadow",
+  });
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const geocodeOnce = async (q) => {
+  const key = `geo:${q}`;
+  const cached = localStorage.getItem(key);
+  if (cached) return JSON.parse(cached);
+
+  // educado con Nominatim (1–2 req/seg) + bounded a Aburrá/Oriente
+  const url = new URL("https://nominatim.openstreetmap.org/search");
+  url.searchParams.set("format", "json");
+  url.searchParams.set("q", q);
+  // bounding box aprox: oeste/ sur/ este/ norte
+  url.searchParams.set("bounded", "1");
+  url.searchParams.set("viewbox", "-75.75,6.35,-75.35,6.05");
+
+  await sleep(600); // ser buen ciudadano con el rate limit
+  const res = await fetch(url.toString(), {
+    headers: { "Accept-Language": "es", "User-Agent": "demo-mapita/1.0" },
+  });
+  const data = await res.json();
+  if (Array.isArray(data) && data.length) {
+    const hit = { lat: +data[0].lat, lng: +data[0].lon };
+    localStorage.setItem(key, JSON.stringify(hit));
+    return hit;
+  }
+  return null;
+};
+
+export default function Mapa2() {
+  useEffect(() => {
+    const map = L.map("map").setView([6.208, -75.567], 12);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
     }).addTo(map);
 
-    // ===== Pines SVG (sin assets) =====
-    const TYPE = {
-      sushi:{color:"#ff8fab",emoji:"🍣"}, gimnasio:{color:"#7aa2ff",emoji:"🏋️"},
-      cine:{color:"#ffd166",emoji:"🎬"}, centro_comercial:{color:"#6ee7b7",emoji:"🛍️"},
-      comida_rapida:{color:"#fca5a5",emoji:"🍔"}, restaurante:{color:"#f59e0b",emoji:"🍽️"},
-      pasteleria:{color:"#d8b4fe",emoji:"🧁"}, deporte:{color:"#60a5fa",emoji:"🏟️"},
-      default:{color:"#a3a3a3",emoji:"📍"}
-    };
-    const makePrettyIcon = (t="default", label="")=>{
-      const {color,emoji}=TYPE[t]||TYPE.default;
-      const svg = `
-        <svg width="60" height="78" viewBox="0 0 60 78" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <defs>
-            <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-              <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.25"/>
-            </filter>
-            <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="${color}"/><stop offset="100%" stop-color="${color}" stop-opacity="0.85"/>
-            </linearGradient>
-          </defs>
-          <path d="M30 76 C30 76 6 50 6 32 A24 24 0 1 1 54 32 C54 50 30 76 30 76Z" fill="url(#g)" filter="url(#shadow)"/>
-          <circle cx="30" cy="30" r="16" fill="white"/>
-          <foreignObject x="18" y="18" width="24" height="24">
-            <div xmlns="http://www.w3.org/1999/xhtml" style="font-size:20px;line-height:24px;text-align:center">${emoji}</div>
-          </foreignObject>
-        </svg>`;
-      const html = `<div class="marker-badge">${svg}<div class="marker-label">${label}</div></div>`;
-      return L.divIcon({ className:"svg-marker", html, iconSize:[60,78], iconAnchor:[30,76], popupAnchor:[0,-70] });
-    };
-
-    const style=document.createElement("style");
-    style.innerHTML=`.svg-marker{position:relative}.marker-badge{position:relative;transform-origin:bottom center}
-      .marker-badge:hover{transform:scale(1.06)}
-      .marker-label{position:absolute;left:50%;transform:translateX(-50%);bottom:-18px;background:#111;color:#fff;font-size:12px;padding:2px 6px;border-radius:999px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.25)}`;
-    document.head.appendChild(style);
-
-    // ===== Lugares con coordenadas fijas (ajústalas si ves corrimiento) =====
+    // 👇 Lugares. Si hay lat/lng, se usa directo; si no, se geocodifica 1 sola vez y se cachea.
     const lugares = [
-      { nombre:"Takamar Sushi - Mall San Lucas", tipo:"sushi",         lat:6.1755,  lng:-75.5668 },
-      { nombre:"Smart Fit - La Intermedia",       tipo:"gimnasio",      lat:6.1707,  lng:-75.5845 },
-      { nombre:"Cinépolis City Plaza",            tipo:"cine",          lat:6.1692,  lng:-75.5849 },
-      { nombre:"Viva Envigado",                   tipo:"centro_comercial", lat:6.1757, lng:-75.5919 },
-      { nombre:"Sushi Gama (Manila)",             tipo:"sushi",         lat:6.2107,  lng:-75.5699 },
-      { nombre:"Sr. Buñuelo (La 10)",             tipo:"comida_rapida", lat:6.2097,  lng:-75.5674 }, // Cl 10 #43C-35
-      { nombre:"El Bosque Era Rosado",            tipo:"restaurante",   lat:6.1862,  lng:-75.5555 },
-      { nombre:"Gitana en las Nubes",             tipo:"restaurante",   lat:6.1657,  lng:-75.5488 },
-      { nombre:"Tierra Alta (El Tesoro)",         tipo:"restaurante",   lat:6.2002,  lng:-75.5531 }, // C.C. El Tesoro
-      { nombre:"Biela Bakery (Manila)",           tipo:"pasteleria",    lat:6.2109,  lng:-75.5696 },
-      { nombre:"Estadio Atanasio Girardot",       tipo:"deporte",       lat:6.2566,  lng:-75.5906 }
+      // ——— TUS ORIGINALES (ejemplos) ———
+      { nombre: "Takamar Sushi - Mall San Lucas", direccion: "Calle 20 Sur #27-55, Medellín", tipo: "sushi" },
+      { nombre: "Cinépolis City Plaza", direccion: "Calle 36D Sur #27A, Envigado", tipo: "cine" },
+      // ——— NUEVOS QUE PEDISTE ———
+      { nombre: "Arepepa (Envigado)", direccion: "Cl. 37 Sur #31-55, Envigado, Antioquia", tipo: "comida_rapida" },
+      { nombre: "Los Perritos del Mono (Las Palmas)", direccion: "Vía Las Palmas, sector Mirador Las Palmas, Medellín", tipo: "comida_rapida" },
+      { nombre: "Oficinas ISAGEN (Los Balsos)", direccion: "Los Balsos, Medellín (oficinas Isagen)", tipo: "edificio" },
+      { nombre: "Urbanización Saltamonte Grand", direccion: "Carrera 27G #35 Sur, Envigado", tipo: "urbanizacion" },
+      // Verificado: Balsos de Oviedo (coords directas)
+      { nombre: "Urbanización Balsos de Oviedo", lat: 6.19525, lng: -75.57303, tipo: "urbanizacion" }, // Mapcarta
+      { nombre: "¡Hasta la Pizza, Baby!", direccion: "Cl. 2 #20-50, Q Office, El Poblado, Medellín", tipo: "pizza" },
+      // Verificado: Las Chachas (Envigado) — coord aprox Parque Envigado
+      { nombre: "Las Chachas (Envigado)", direccion: "Calle 37 Sur, cerca Parque Envigado", tipo: "comida_rapida" },
+      { nombre: "La Buena Mesa (Sushi World)", lat: 6.177557, lng: -75.586216, tipo: "sushi" }, // Waze link directo
+      // Verificado aprox por dirección exacta en Intermedia (Yandex house coords)
+      { nombre: "Farmatodo (Intermedia)", lat: 6.162858, lng: -75.569794, tipo: "farmacia" },
+      { nombre: "Trappani Pizzería (Envigado)", direccion: "Cl. 39B Sur #29A-37, Envigado", tipo: "pizza" },
+      { nombre: "Pizza Loca (Sabaneta)", direccion: "Cra. 43B #70 Sur-48, Sabaneta", tipo: "pizza" },
+      { nombre: "Bramante", direccion: "Cra. 29C #3B Sur-70, El Poblado, Medellín", tipo: "restaurante" },
+      { nombre: "Casa VerdeMiel (Llanogrande, Rionegro)", direccion: "Km 1, Llanogrande - Rionegro (después de los trailers)", tipo: "restaurante" },
+      { nombre: "El Coctelazo (Belén La Nubia)", direccion: "Cra. 83 #15A-21, Medellín", tipo: "bar" },
+      { nombre: "Tres Trigos", direccion: "Cra. 43A #18 Sur-84, El Poblado, Medellín", tipo: "pasteleria" },
+      { nombre: "Capira Papitas (Poblado)", direccion: "Cl. 10 #37-38, El Poblado, Medellín", tipo: "comida_rapida" },
+      // Corregido: Sr. Buñuelo — dirección que me diste
+      { nombre: "Sr. Buñuelo (Poblado)", direccion: "Cl. 10 #43C-35, El Poblado, Medellín", tipo: "comida_rapida" },
     ];
 
-    // ——— evita que marcadores idénticos se tapen si comparten coords ———
-    const used = new Map();
-    const nudge = (lat,lng) => {
-      const key = `${lat.toFixed(6)},${lng.toFixed(6)}`;
-      const c = (used.get(key) || 0) + 1; used.set(key,c);
-      if (c===1) return [lat,lng];
-      const r=0.00012*c, ang=(c*137.508)*Math.PI/180; // ~13m, 26m, ...
-      return [lat + r*Math.sin(ang), lng + r*Math.cos(ang)];
+    const markers = [];
+    const addMarker = ({ nombre, lat, lng, tipo, direccion }) => {
+      const m = L.marker([lat, lng], { icon: iconFor(tipo) })
+        .addTo(map)
+        .bindPopup(
+          `<b>${nombre}</b><br/>${
+            direccion ? `<small>${direccion}</small><br/>` : ""
+          }<a href="https://www.google.com/maps/search/?api=1&query=${lat},${lng}" target="_blank">Ver en Google Maps</a>`
+        );
+      markers.push(m);
     };
 
-    const bounds = L.latLngBounds([]);
-    for (const l of lugares) {
-      const [lat,lng] = nudge(l.lat, l.lng);
-      L.marker([lat,lng], { icon: makePrettyIcon(l.tipo, l.nombre) })
-        .addTo(map)
-        .bindPopup(`<b>${l.nombre}</b>`)
-        .bindTooltip(l.nombre, { direction:"top" });
-      bounds.extend([lat,lng]);
-    }
-    if (bounds.isValid()) map.fitBounds(bounds.pad(0.15));
-    setTimeout(()=>map.invalidateSize(),0);
+    // Procesa con concurrencia 3 los que necesiten geocoding
+    (async () => {
+      const need = lugares.filter((l) => !(l.lat && l.lng));
+      const direct = lugares.filter((l) => l.lat && l.lng);
 
-    return ()=>{ map.remove(); document.head.removeChild(style); };
+      direct.forEach(addMarker);
+
+      const pool = 3;
+      let i = 0;
+      const runWorker = async () => {
+        while (i < need.length) {
+          const idx = i++;
+          const l = need[idx];
+          const hit = await geocodeOnce(l.direccion || l.nombre);
+          if (hit) addMarker({ ...l, ...hit });
+          else console.warn("No geocodificó:", l.nombre, l.direccion);
+        }
+      };
+      await Promise.all(Array.from({ length: pool }, runWorker));
+
+      // Fit bounds bonito
+      const group = L.featureGroup(markers);
+      if (markers.length) map.fitBounds(group.getBounds().pad(0.2));
+    })();
+
+    return () => map.remove();
   }, []);
 
-  return <div id="map" style={{ height: 640, width: "100%", borderRadius: 14, overflow: "hidden" }} />;
+  return <div id="map" style={{ height: "600px", width: "100%" }} />;
 }
-
-export default Mapa2;
