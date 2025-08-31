@@ -13,7 +13,13 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@fontsource/caveat": "^5.2.6",
+    "@fontsource/quicksand": "^5.2.8",
     "@googlemaps/js-api-loader": "^1.16.10",
+    "@mui/icons-material": "^7.3.1",
+    "@mui/material": "^7.3.1",
     "leaflet": "^1.9.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
