@@ -11,7 +11,7 @@ function Mapa2() {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
-    // ----- estilos por tipo (color + emoji) -----
+    // ====== Marcador SVG (sin assets) ======
     const TYPE = {
       sushi:           { color: "#ff8fab", emoji: "🍣" },
       gimnasio:        { color: "#7aa2ff", emoji: "🏋️" },
@@ -24,11 +24,10 @@ function Mapa2() {
       default:         { color: "#a3a3a3", emoji: "📍" }
     };
 
-    // ----- marcador SVG bonito (sin imágenes) -----
     const makePrettyIcon = (t = "default", label = "") => {
       const { color, emoji } = TYPE[t] || TYPE.default;
       const svg = `
-        <svg width="60" height="78" viewBox="0 0 60 78" xmlns="http://www.w3.org/2000/svg">
+        <svg width="60" height="78" viewBox="0 0 60 78" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <defs>
             <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
               <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.25"/>
@@ -38,17 +37,13 @@ function Mapa2() {
               <stop offset="100%" stop-color="${color}" stop-opacity="0.8"/>
             </linearGradient>
           </defs>
-          <!-- pin -->
           <path d="M30 76 C30 76 6 50 6 32 A24 24 0 1 1 54 32 C54 50 30 76 30 76Z" fill="url(#g)" filter="url(#shadow)"/>
-          <!-- círculo interior -->
           <circle cx="30" cy="30" r="16" fill="white" />
-          <!-- emoji -->
           <foreignObject x="18" y="18" width="24" height="24">
             <div xmlns="http://www.w3.org/1999/xhtml" style="font-size:20px;line-height:24px;text-align:center">${emoji}</div>
           </foreignObject>
         </svg>
       `;
-      // etiqueta debajo (DivIcon contenedor)
       const html = `
         <div class="marker-badge">
           ${svg}
@@ -60,12 +55,11 @@ function Mapa2() {
         className: "svg-marker",
         html,
         iconSize: [60, 78],
-        iconAnchor: [30, 76],   // punta del pin
+        iconAnchor: [30, 76],
         popupAnchor: [0, -70]
       });
     };
 
-    // inyectamos CSS para el pulso y etiqueta
     const style = document.createElement("style");
     style.innerHTML = `
       .svg-marker { position: relative; }
@@ -90,34 +84,48 @@ function Mapa2() {
     `;
     document.head.appendChild(style);
 
-    // ---------- LUGARES ----------
+    // ====== Direcciones corregidas y estandarizadas ======
+    // (sin repetir “barrio” y siempre “Medellín, Antioquia, Colombia” o Envigado)
     const lugares = [
-      { nombre: "Takamar Sushi - Mall San Lucas", direccion: "Calle 20 Sur #27-55, Medellín, Colombia", tipo: "sushi" },
-      { nombre: "Gimnasio Smart Fit - La Intermedia", direccion: "Carrera 27 #23 Sur-241, El Esmeraldal, Envigado, Antioquia, Colombia", tipo: "gimnasio" },
+      { nombre: "Takamar Sushi - Mall San Lucas", direccion: "Calle 20 Sur #27-55, Medellín, Antioquia, Colombia", tipo: "sushi" },
+      { nombre: "Smart Fit - La Intermedia", direccion: "Carrera 27 #23 Sur-241, Envigado, Antioquia, Colombia", tipo: "gimnasio" },
       { nombre: "Cinépolis City Plaza", direccion: "Calle 36D Sur #27A, Envigado, Antioquia, Colombia", tipo: "cine" },
-      { nombre: "Centro Comercial Viva Envigado", direccion: "Carrera 48 #32B Sur-139, Envigado, Antioquia, Colombia", tipo: "centro_comercial" },
-      { nombre: "Sushi Gama", direccion: "Calle 11A #43F-5, Manila, El Poblado, Medellín, Colombia", tipo: "sushi" },
-      { nombre: "Sr. Buñuelo (La 10, El Poblado)", direccion: "Sr Buñuelo, Calle 10, El Poblado, Medellín, Colombia", tipo: "comida_rapida" },
-      { nombre: "El Bosque Era Rosado", direccion: "Calle 16A Sur #9E-150, Los Balsos, El Poblado, Medellín, Colombia", tipo: "restaurante" },
-      { nombre: "Gitana en las Nubes", direccion: "Transversal de la Montaña km 0.3, Envigado, Antioquia, Colombia", tipo: "restaurante" },
-      { nombre: "Tierra Alta", direccion: "Calle 11A #43F-5, Manila, El Poblado, Medellín, Colombia", tipo: "restaurante" },
-      { nombre: "Biela Bakery", direccion: "Calle 11A #43F-5, Manila, El Poblado, Medellín, Colombia", tipo: "pasteleria" },
+      { nombre: "Viva Envigado", direccion: "Carrera 48 #32B Sur-139, Envigado, Antioquia, Colombia", tipo: "centro_comercial" },
+      { nombre: "Sushi Gama (Manila)", direccion: "Calle 11A #43F-5, Medellín, Antioquia, Colombia", tipo: "sushi" },
+      { nombre: "Sr. Buñuelo (La 10)", direccion: "Calle 10 #43C-35, Medellín, Antioquia, Colombia", tipo: "comida_rapida" },
+      { nombre: "El Bosque Era Rosado", direccion: "Calle 16A Sur #9E-150, Medellín, Antioquia, Colombia", tipo: "restaurante" },
+      { nombre: "Gitana en las Nubes", direccion: "Transversal de la Montaña Km 0.3, Envigado, Antioquia, Colombia", tipo: "restaurante" },
+      { nombre: "Tierra Alta (El Tesoro)", direccion: "Centro Comercial El Tesoro, Carrera 25A #1A Sur-45, Medellín, Antioquia, Colombia", tipo: "restaurante" },
+      { nombre: "Biela Bakery (Manila)", direccion: "Calle 11A #43F-5, Medellín, Antioquia, Colombia", tipo: "pasteleria" },
       { nombre: "Estadio Atanasio Girardot", direccion: "Calle 57 #42-1, Medellín, Antioquia, Colombia", tipo: "deporte" }
     ];
 
-    // ---------- geocoder con rate-limit ----------
-    const geocode = async (q) => {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=0&q=${encodeURIComponent(q)}`;
-      const r = await fetch(url, {
-        headers: {
-          "Accept-Language": "es",
-          "User-Agent": "mapita-bonito/1.0 (contacto: email@dominio.com)"
-        }
-      });
-      if (!r.ok) return null;
-      const j = await r.json();
-      if (!j || !j.length) return null;
-      return [parseFloat(j[0].lat), parseFloat(j[0].lon)];
+    // ====== Geocoder robusto: país, viewbox Medellín, structured-first ======
+    const VIEWBOX = {
+      // [minLon, minLat, maxLon, maxLat] aprox. Valle de Aburrá central
+      minLon: -75.70, minLat: 6.15, maxLon: -75.50, maxLat: 6.39
+    };
+
+    const headers = {
+      "Accept-Language": "es",
+      "User-Agent": "mapita-bonito/1.0 (contacto: email@dominio.com)"
+    };
+
+    // intenta “structured” (street/city/state/country) y luego libre
+    const geocode = async (dir) => {
+      const city = dir.includes("Envigado") ? "Envigado" : "Medellín";
+      const street = dir.replace(/,\s*(Medellín|Envigado).*$/i, ""); // toma solo la parte de calle/carrera
+      const structured = `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=0&countrycodes=co&street=${encodeURIComponent(street)}&city=${encodeURIComponent(city)}&state=${encodeURIComponent("Antioquia")}&country=${encodeURIComponent("Colombia")}&viewbox=${VIEWBOX.minLon},${VIEWBOX.maxLat},${VIEWBOX.maxLon},${VIEWBOX.minLat}&bounded=1`;
+      const free = `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=0&countrycodes=co&q=${encodeURIComponent(dir)}&viewbox=${VIEWBOX.minLon},${VIEWBOX.maxLat},${VIEWBOX.maxLon},${VIEWBOX.minLat}&bounded=1`;
+
+      // structured first
+      for (const url of [structured, free]) {
+        const r = await fetch(url, { headers });
+        if (!r.ok) continue;
+        const j = await r.json();
+        if (j && j.length) return [parseFloat(j[0].lat), parseFloat(j[0].lon)];
+      }
+      return null;
     };
 
     let cancelled = false;
@@ -139,9 +147,10 @@ function Mapa2() {
             .bindTooltip(l.nombre, { direction: "top" });
           bounds.extend(coords);
         } else {
-          console.warn("Sin coordenadas:", l.nombre);
+          console.warn("Sin coordenadas:", l.nombre, "-", l.direccion);
         }
-        await new Promise((r) => setTimeout(r, 1100)); // 1.1s por política Nominatim
+        // respeta Nominatim
+        await new Promise((r) => setTimeout(r, 1100));
       }
       if (bounds.isValid()) map.fitBounds(bounds.pad(0.15));
       setTimeout(() => map.invalidateSize(), 0);
