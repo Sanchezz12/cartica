@@ -11,7 +11,7 @@ function Mapa2() {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
-    // ====== Marcador SVG (sin assets) ======
+    // ====== Pines SVG (sin assets) ======
     const TYPE = {
       sushi:           { color: "#ff8fab", emoji: "🍣" },
       gimnasio:        { color: "#7aa2ff", emoji: "🏋️" },
@@ -84,49 +84,112 @@ function Mapa2() {
     `;
     document.head.appendChild(style);
 
-    // ====== Direcciones corregidas y estandarizadas ======
-    // (sin repetir “barrio” y siempre “Medellín, Antioquia, Colombia” o Envigado)
+    // ====== Datos con direcciones afinadas ======
     const lugares = [
-      { nombre: "Takamar Sushi - Mall San Lucas", direccion: "Calle 20 Sur #27-55, Medellín, Antioquia, Colombia", tipo: "sushi" },
-      { nombre: "Smart Fit - La Intermedia", direccion: "Carrera 27 #23 Sur-241, Envigado, Antioquia, Colombia", tipo: "gimnasio" },
-      { nombre: "Cinépolis City Plaza", direccion: "Calle 36D Sur #27A, Envigado, Antioquia, Colombia", tipo: "cine" },
-      { nombre: "Viva Envigado", direccion: "Carrera 48 #32B Sur-139, Envigado, Antioquia, Colombia", tipo: "centro_comercial" },
-      { nombre: "Sushi Gama (Manila)", direccion: "Calle 11A #43F-5, Medellín, Antioquia, Colombia", tipo: "sushi" },
-      { nombre: "Sr. Buñuelo (La 10)", direccion: "Calle 10 #43C-35, Medellín, Antioquia, Colombia", tipo: "comida_rapida" },
-      { nombre: "El Bosque Era Rosado", direccion: "Calle 16A Sur #9E-150, Medellín, Antioquia, Colombia", tipo: "restaurante" },
-      { nombre: "Gitana en las Nubes", direccion: "Transversal de la Montaña Km 0.3, Envigado, Antioquia, Colombia", tipo: "restaurante" },
-      { nombre: "Tierra Alta (El Tesoro)", direccion: "Centro Comercial El Tesoro, Carrera 25A #1A Sur-45, Medellín, Antioquia, Colombia", tipo: "restaurante" },
-      { nombre: "Biela Bakery (Manila)", direccion: "Calle 11A #43F-5, Medellín, Antioquia, Colombia", tipo: "pasteleria" },
-      { nombre: "Estadio Atanasio Girardot", direccion: "Calle 57 #42-1, Medellín, Antioquia, Colombia", tipo: "deporte" }
+      { nombre: "Takamar Sushi - Mall San Lucas", tipo: "sushi",
+        dir: "Calle 20 Sur #27-55, Medellín, Antioquia, Colombia",
+        poi: "Takamar Sushi Mall San Lucas Medellín"
+      },
+      { nombre: "Smart Fit - La Intermedia", tipo: "gimnasio",
+        dir: "Carrera 27 #23 Sur-241, Envigado, Antioquia, Colombia",
+        poi: "Smart Fit La Intermedia Envigado"
+      },
+      { nombre: "Cinépolis City Plaza", tipo: "cine",
+        dir: "Calle 36D Sur #27A, Envigado, Antioquia, Colombia",
+        poi: "Cinépolis City Plaza Envigado"
+      },
+      { nombre: "Viva Envigado", tipo: "centro_comercial",
+        dir: "Carrera 48 #32B Sur-139, Envigado, Antioquia, Colombia",
+        poi: "Centro Comercial Viva Envigado"
+      },
+      { nombre: "Sushi Gama (Manila)", tipo: "sushi",
+        dir: "Calle 11A #43F-5, Medellín, Antioquia, Colombia",
+        poi: "Sushi Gama Manila Medellín"
+      },
+      { nombre: "Sr. Buñuelo (La 10)", tipo: "comida_rapida",
+        dir: "Calle 10 #43C-35, Medellín, Antioquia, Colombia",
+        poi: "Sr Buñuelo Calle 10 43C-35 Medellín"
+      },
+      { nombre: "El Bosque Era Rosado", tipo: "restaurante",
+        dir: "Calle 16A Sur #9E-150, Medellín, Antioquia, Colombia",
+        poi: "El Bosque Era Rosado Medellín Los Balsos"
+      },
+      { nombre: "Gitana en las Nubes", tipo: "restaurante",
+        dir: "Transversal de la Montaña Km 0.3, Envigado, Antioquia, Colombia",
+        poi: "Gitana en las Nubes Envigado"
+      },
+      { nombre: "Tierra Alta (El Tesoro)", tipo: "restaurante",
+        dir: "Centro Comercial El Tesoro, Carrera 25A #1A Sur-45, Medellín, Antioquia, Colombia",
+        poi: "Tierra Alta Restaurante El Tesoro Medellín"
+      },
+      { nombre: "Biela Bakery (Manila)", tipo: "pasteleria",
+        dir: "Calle 11A #43F-5, Medellín, Antioquia, Colombia",
+        poi: "Biela Bakery Manila Medellín"
+      },
+      { nombre: "Estadio Atanasio Girardot", tipo: "deporte",
+        dir: "Calle 57 #42-1, Medellín, Antioquia, Colombia",
+        poi: "Estadio Atanasio Girardot"
+      }
     ];
 
-    // ====== Geocoder robusto: país, viewbox Medellín, structured-first ======
-    const VIEWBOX = {
-      // [minLon, minLat, maxLon, maxLat] aprox. Valle de Aburrá central
-      minLon: -75.70, minLat: 6.15, maxLon: -75.50, maxLat: 6.39
-    };
-
-    const headers = {
+    // ====== Geocoder multiproveedor con bias Medellín ======
+    const VIEWBOX = { left: -75.70, top: 6.39, right: -75.50, bottom: 6.15 }; // (lon1, lat1, lon2, lat2)
+    const HEADERS = {
       "Accept-Language": "es",
       "User-Agent": "mapita-bonito/1.0 (contacto: email@dominio.com)"
     };
+    const BIAS = { lon: -75.57, lat: 6.23 }; // centro Poblado/Envigado
 
-    // intenta “structured” (street/city/state/country) y luego libre
-    const geocode = async (dir) => {
-      const city = dir.includes("Envigado") ? "Envigado" : "Medellín";
-      const street = dir.replace(/,\s*(Medellín|Envigado).*$/i, ""); // toma solo la parte de calle/carrera
-      const structured = `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=0&countrycodes=co&street=${encodeURIComponent(street)}&city=${encodeURIComponent(city)}&state=${encodeURIComponent("Antioquia")}&country=${encodeURIComponent("Colombia")}&viewbox=${VIEWBOX.minLon},${VIEWBOX.maxLat},${VIEWBOX.maxLon},${VIEWBOX.minLat}&bounded=1`;
-      const free = `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=0&countrycodes=co&q=${encodeURIComponent(dir)}&viewbox=${VIEWBOX.minLon},${VIEWBOX.maxLat},${VIEWBOX.maxLon},${VIEWBOX.minLat}&bounded=1`;
+    async function hitNominatim(query, structured = false) {
+      const url = structured
+        ? `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=0&countrycodes=co&viewbox=${VIEWBOX.left},${VIEWBOX.top},${VIEWBOX.right},${VIEWBOX.bottom}&bounded=1&${query}`
+        : `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=0&countrycodes=co&viewbox=${VIEWBOX.left},${VIEWBOX.top},${VIEWBOX.right},${VIEWBOX.bottom}&bounded=1&q=${encodeURIComponent(query)}`;
+      const r = await fetch(url, { headers: HEADERS });
+      if (!r.ok) return null;
+      const j = await r.json();
+      if (!j || !j.length) return null;
+      return [parseFloat(j[0].lat), parseFloat(j[0].lon)];
+    }
 
-      // structured first
-      for (const url of [structured, free]) {
-        const r = await fetch(url, { headers });
-        if (!r.ok) continue;
-        const j = await r.json();
-        if (j && j.length) return [parseFloat(j[0].lat), parseFloat(j[0].lon)];
-      }
+    async function hitPhoton(q) {
+      // bias por Medellín; lang es, filtro por Colombia
+      const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&lang=es&limit=1&lon=${BIAS.lon}&lat=${BIAS.lat}`;
+      const r = await fetch(url);
+      if (!r.ok) return null;
+      const j = await r.json();
+      if (!j || !j.features || !j.features.length) return null;
+      const [lon, lat] = j.features[0].geometry.coordinates;
+      // filtro bruto por país si viene en properties
+      if (j.features[0].properties?.countrycode && j.features[0].properties.countrycode !== "CO") return null;
+      return [lat, lon];
+    }
+
+    async function geocodePOIFirst({ poi, dir }) {
+      // 1) Nominatim por POI
+      let coords = await hitNominatim(poi, false);
+      if (coords) return coords;
+
+      // 2) Photon por POI
+      coords = await hitPhoton(poi);
+      if (coords) return coords;
+
+      // 3) Nominatim structured por dirección (street+city+state+country)
+      const city = /Envigado/i.test(dir) ? "Envigado" : "Medellín";
+      const street = dir.replace(/,\s*(Medellín|Envigado).*$/i, "");
+      const structured = `street=${encodeURIComponent(street)}&city=${encodeURIComponent(city)}&state=${encodeURIComponent("Antioquia")}&country=${encodeURIComponent("Colombia")}`;
+      coords = await hitNominatim(structured, true);
+      if (coords) return coords;
+
+      // 4) Nominatim libre por dirección
+      coords = await hitNominatim(dir, false);
+      if (coords) return coords;
+
+      // 5) Photon libre por dirección
+      coords = await hitPhoton(dir);
+      if (coords) return coords;
+
       return null;
-    };
+    }
 
     let cancelled = false;
     const bounds = L.latLngBounds([]);
@@ -134,24 +197,32 @@ function Mapa2() {
     (async () => {
       for (const l of lugares) {
         if (cancelled) break;
-        const coords = await geocode(l.direccion).catch(() => null);
+
+        // respeta a Nominatim: 1.1s entre llamadas a él
+        const t0 = performance.now();
+        const coords = await geocodePOIFirst(l).catch(() => null);
+        const elapsed = performance.now() - t0;
         if (coords) {
           L.marker(coords, { icon: makePrettyIcon(l.tipo, l.nombre) })
             .addTo(map)
             .bindPopup(
-              `<b>${l.nombre}</b><br/><small>${l.direccion}</small><br/>
+              `<b>${l.nombre}</b><br/><small>${l.dir}</small><br/>
                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                 `${l.nombre} ${l.direccion}`
+                 `${l.nombre} ${l.dir}`
                )}" target="_blank" rel="noopener">Ver en Google Maps</a>`
             )
             .bindTooltip(l.nombre, { direction: "top" });
           bounds.extend(coords);
+          console.log("OK:", l.nombre, coords);
         } else {
-          console.warn("Sin coordenadas:", l.nombre, "-", l.direccion);
+          console.warn("NO ENCONTRADO:", l.nombre, "-", l.dir);
         }
-        // respeta Nominatim
-        await new Promise((r) => setTimeout(r, 1100));
+
+        // espera para no pasar el rate de Nominatim (cuenta solo si tardó poco)
+        const minGap = 1150;
+        if (elapsed < minGap) await new Promise((r) => setTimeout(r, minGap - elapsed));
       }
+
       if (bounds.isValid()) map.fitBounds(bounds.pad(0.15));
       setTimeout(() => map.invalidateSize(), 0);
     })();
