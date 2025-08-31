@@ -1,10 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 function Mapa2() {
-  const [lugaresConCoords, setLugaresConCoords] = useState([]);
-
   useEffect(() => {
     const map = L.map("map").setView([6.2442, -75.5812], 12);
 
@@ -13,17 +11,17 @@ function Mapa2() {
     }).addTo(map);
 
     const lugares = [
-      { nombre: "Takamar Sushi - Mall San Lucas", direccion: "Mall San Lucas, Medellín, Colombia", tipo: "sushi" },
-      { nombre: "Gimnasio Smart Fit - La Intermedia", direccion: "La Intermedia, Medellín, Colombia", tipo: "gimnasio" },
-      { nombre: "Cinépolis City Plaza", direccion: "City Plaza, Medellín, Colombia", tipo: "cine" },
-      { nombre: "Centro Comercial Viva Envigado", direccion: "Viva Envigado, Envigado, Colombia", tipo: "centro_comercial" },
-      { nombre: "Sushi Gama", direccion: "Sushi Gama, Medellín, Colombia", tipo: "sushi" },
-      { nombre: "Sr. Buñuelo", direccion: "Sr. Buñuelo, Medellín, Colombia", tipo: "comida_rapida" },
-      { nombre: "El Bosque Era Rosado", direccion: "El Bosque Era Rosado, Medellín, Colombia", tipo: "restaurante" },
-      { nombre: "Gitana en las Nubes", direccion: "Gitana en las Nubes, Medellín, Colombia", tipo: "restaurante" },
-      { nombre: "Tierra Alta", direccion: "Tierra Alta, Medellín, Colombia", tipo: "restaurante" },
-      { nombre: "Biela Bakery", direccion: "Biela Bakery, Medellín, Colombia", tipo: "pasteleria" },
-      { nombre: "El Diamante (Estadio Atanasio Girardot)", direccion: "Estadio Atanasio Girardot, Medellín, Colombia", tipo: "deporte" }
+      { nombre: "Takamar Sushi - Mall San Lucas", direccion: "Calle 20 Sur #27-55, Medellín, Colombia", tipo: "sushi" },
+      { nombre: "Gimnasio Smart Fit - La Intermedia", direccion: "Carrera 27 #23 Sur-241, El Esmeraldal, Envigado, Antioquia, Colombia", tipo: "gimnasio" },
+      { nombre: "Cinépolis City Plaza", direccion: "Calle 36D Sur #27A, El Escobero, Envigado, Antioquia, Colombia", tipo: "cine" },
+      { nombre: "Centro Comercial Viva Envigado", direccion: "Carrera 48 #32B Sur-139, Envigado, Antioquia, Colombia", tipo: "centro_comercial" },
+      { nombre: "Sushi Gama", direccion: "Calle 11A #43F-5, Barrio Manila, El Poblado, Medellín, Colombia", tipo: "sushi" },
+      { nombre: "Sr. Buñuelo", direccion: "Calle 33 #42B-06, La Candelaria, Medellín, Colombia", tipo: "comida_rapida" },
+      { nombre: "El Bosque Era Rosado", direccion: "Calle 16A Sur #9E-150, Los Balsos, El Poblado, Medellín, Colombia", tipo: "restaurante" },
+      { nombre: "Gitana en las Nubes", direccion: "Km 0.3, Transversal de la Montaña, Envigado, Antioquia, Colombia", tipo: "restaurante" },
+      { nombre: "Tierra Alta", direccion: "Calle 11A #43F-5, Barrio Manila, El Poblado, Medellín, Colombia", tipo: "restaurante" },
+      { nombre: "Biela Bakery", direccion: "Calle 11A #43F-5, Barrio Manila, El Poblado, Medellín, Colombia", tipo: "pasteleria" },
+      { nombre: "Estadio Atanasio Girardot", direccion: "Calle 57 #42-1, Medellín, Antioquia, Colombia", tipo: "deporte" }
     ];
 
     const iconos = {
@@ -37,32 +35,24 @@ function Mapa2() {
       deporte: L.icon({ iconUrl: "/icons/sport.png", iconSize: [30, 30] })
     };
 
-    // Función para geocodificar con Nominatim
-    const fetchCoords = async (lugar) => {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(lugar.direccion)}`);
-      const data = await res.json();
-      if (data.length > 0) {
-        return { ...lugar, coords: [parseFloat(data[0].lat), parseFloat(data[0].lon)] };
-      } else {
-        console.warn("No se encontró coords para:", lugar.nombre);
-        return null;
-      }
-    };
-
-    // Geocodificar todos los lugares
-    Promise.all(lugares.map(fetchCoords)).then(results => {
-      const validResults = results.filter(r => r !== null);
-      setLugaresConCoords(validResults);
-
-      // Agregar markers
-      validResults.forEach(lugar => {
-        L.marker(lugar.coords, { icon: iconos[lugar.tipo] })
-          .addTo(map)
-          .bindPopup(`
-            <b>${lugar.nombre}</b><br/>
-            <a href="https://www.google.com/maps/search/?api=1&query=${lugar.coords[0]},${lugar.coords[1]}" target="_blank">Ver en Google Maps</a>
-          `);
-      });
+    lugares.forEach(lugar => {
+      const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(lugar.direccion)}`;
+      fetch(geocodeUrl)
+        .then(response => response.json())
+        .then(data => {
+          if (data.length > 0) {
+            const coords = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+            L.marker(coords, { icon: iconos[lugar.tipo] })
+              .addTo(map)
+              .bindPopup(`
+                <b>${lugar.nombre}</b><br/>
+                <a href="https://www.google.com/maps/search/?api=1&query=${coords[0]},${coords[1]}" target="_blank">Ver en Google Maps</a>
+              `);
+          } else {
+            console.warn(`No se encontraron coordenadas para: ${lugar.nombre}`);
+          }
+        })
+        .catch(error => console.error(`Error al geocodificar ${lugar.nombre}:`, error));
     });
 
     return () => map.remove();
