@@ -62,4 +62,3 @@ function Mapa2() {
 }
 
 export default Mapa2;
-
