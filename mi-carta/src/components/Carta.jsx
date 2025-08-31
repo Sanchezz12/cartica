@@ -68,8 +68,8 @@ function Carta() {
         Hoy mis sueños quizás no estén del todo definidos, pero todos tienen algo en común: tu imagen allí, nuestra imagen allí. 
         Estoy convencido de que podemos cumplirlos juntos. Eres parte fundamental de mi vida, y por eso celebrar tu vida es también celebrar la mía.
         Feliz cumpleaños, mi princesa. Que Dios te siga llenando de bendiciones y de capacidad para reconocer tu valor. Espero seguir 
-        a tu lado, aprendiendo de ti y amándote cada día más y poder seguir festejando tu cumpleaños por siempre
-        <strong>Te amo con todo mi corazón.</strong>
+        a tu lado, aprendiendo de ti y amándote cada día más y poder seguir festejando tu cumpleaños por siempre.
+        <strong> Te amo con todo mi corazón.</strong>
       </p>
     </div>
   );

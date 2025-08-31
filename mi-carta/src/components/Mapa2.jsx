@@ -9,6 +9,10 @@ const EMOJI_OVERRIDES = {
   "Tierra Alta (El Tesoro)": "🍺",
   "Bramante (El Poblado)": "🍔",
   "Los Perritos del Mono (Las Palmas)": "🌭",
+  "Urb. Balsos de Oviedo": "🏡",
+  "Urb. Saltamonte Grand": "🏘️",
+  "Sr. Buñuelo (La 10)": "🍩",
+  "Capira – Cl. 10 #37-38": "🍟"
 };
 
 /* ========= Pines por tipo ========= */

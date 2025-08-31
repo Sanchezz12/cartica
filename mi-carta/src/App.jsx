@@ -129,7 +129,7 @@ export default function App() {
             </Stack>
 
             <Typography variant="body2" sx={{ opacity: .9, mt: 0.5 }}>
-              23 lugares, un corazón y miles de recuerdos
+              23 lugares de nuestros lugares y miles de recuerdos
             </Typography>
           </Paper>
 
