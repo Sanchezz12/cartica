@@ -1,15 +1,19 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 function Mapa2() {
+  const inited = useRef(false);
+
   useEffect(() => {
+    if (inited.current) return; // evita doble montaje en React 18 StrictMode
+    inited.current = true;
+
     const map = L.map("map", { zoomControl: true }).setView([6.23, -75.57], 13);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
     // ===== Pines SVG (sin assets) =====
@@ -48,67 +52,65 @@ function Mapa2() {
       .marker-label{position:absolute;left:50%;transform:translateX(-50%);bottom:-18px;background:#111;color:#fff;font-size:12px;padding:2px 6px;border-radius:999px;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.25)}`;
     document.head.appendChild(style);
 
-    // ===== Lugares con coordenadas fijas =====
+    // ===== Lugares SOLO con coordenadas (todos tienen lat/lng) =====
     const lugares = [
-      // --- tus 11 iniciales ---
-      { nombre:"Takamar Sushi - Mall San Lucas", tipo:"sushi", lat:6.1755, lng:-75.5668 },
-      { nombre:"Smart Fit - La Intermedia", tipo:"gimnasio", lat:6.1707, lng:-75.5845 },
-      { nombre:"Cinépolis City Plaza", tipo:"cine", lat:6.1692, lng:-75.5849 },
-      { nombre:"Viva Envigado", tipo:"centro_comercial", lat:6.1757, lng:-75.5919 },
-      { nombre:"Sushi Gama (Manila)", tipo:"sushi", lat:6.2107, lng:-75.5699 },
-      { nombre:"Sr. Buñuelo (La 10)", tipo:"comida_rapida", lat:6.2097, lng:-75.5674 },
-      { nombre:"El Bosque Era Rosado", tipo:"restaurante", lat:6.1862, lng:-75.5555 },
-      { nombre:"Gitana en las Nubes", tipo:"restaurante", lat:6.1657, lng:-75.5488 },
-      { nombre:"Tierra Alta (El Tesoro)", tipo:"restaurante", lat:6.2002, lng:-75.5531 },
-      { nombre:"Biela Bakery (Manila)", tipo:"pasteleria", lat:6.2109, lng:-75.5696 },
-      { nombre:"Estadio Atanasio Girardot", tipo:"deporte", lat:6.2566, lng:-75.5906 },
+      // ——— tus 11 iniciales ———
+      { nombre:"Takamar Sushi - Mall San Lucas", tipo:"sushi",         lat:6.175500, lng:-75.566800 },
+      { nombre:"Smart Fit - La Intermedia",       tipo:"gimnasio",      lat:6.170700, lng:-75.584500 },
+      { nombre:"Cinépolis City Plaza",            tipo:"cine",          lat:6.169200, lng:-75.584900 },
+      { nombre:"Viva Envigado",                   tipo:"centro_comercial", lat:6.176377, lng:-75.591653 },
+      { nombre:"Sushi Gama (Manila)",             tipo:"sushi",         lat:6.210700, lng:-75.569900 },
+      { nombre:"Sr. Buñuelo (La 10)",             tipo:"comida_rapida", lat:6.209700, lng:-75.567400 },
+      { nombre:"El Bosque Era Rosado",            tipo:"restaurante",   lat:6.186200, lng:-75.555500 },
+      { nombre:"Gitana en las Nubes",             tipo:"restaurante",   lat:6.165700, lng:-75.548800 },
+      { nombre:"Tierra Alta (El Tesoro)",         tipo:"restaurante",   lat:6.200200, lng:-75.553100 },
+      { nombre:"Biela Bakery (Manila)",           tipo:"pasteleria",    lat:6.210900, lng:-75.569600 },
+      { nombre:"Estadio Atanasio Girardot",       tipo:"deporte",       lat:6.256600, lng:-75.590600 },
 
-      // --- nuevos que pediste (lat/lng ya puestos) ---
-      { nombre:"Arepepa (Envigado)", tipo:"restaurante", lat:6.1715, lng:-75.5868 },
-      { nombre:"Los Perritos del Mono (Las Palmas)", tipo:"comida_rapida", lat:6.2148, lng:-75.5406 },
-      { nombre:"Isagen (oficinas Los Balsos)", tipo:"default", lat:6.2049, lng:-75.5659 },
-      { nombre:"Urb. Saltamonte Grand (Envigado)", tipo:"default", lat:6.1750, lng:-75.5826 },
-      { nombre:"Urb. Balsos de Oviedo (Medellín)", tipo:"default", lat:6.19533, lng:-75.57349 },
-      { nombre:"Hasta la Pizza Baby", tipo:"restaurante", lat:6.2103, lng:-75.5708 },
-      { nombre:"Las Chachas (Envigado)", tipo:"comida_rapida", lat:6.1771, lng:-75.5872 },
-      { nombre:"Calle de la Buena Mesa (Sushi World)", tipo:"sushi", lat:6.177557, lng:-75.586216 },
-      { nombre:"Farmatodo (La Intermedia)", tipo:"default", lat:6.162858, lng:-75.569794 },
-      { nombre:"Trappani Pizzería (Envigado)", tipo:"restaurante", lat:6.1708, lng:-75.5830 },
-      { nombre:"Pizza Loca (Sabaneta)", tipo:"restaurante", lat:6.1520, lng:-75.6161 },
-      { nombre:"Bramante (El Poblado)", tipo:"restaurante", lat:6.2047, lng:-75.5617 },
-      { nombre:"Casa Verde Miel (Llanogrande, Rionegro)", tipo:"restaurante", lat:6.1410, lng:-75.4230 },
-      { nombre:"El Coctelazo (La Nubia)", tipo:"restaurante", lat:6.1988, lng:-75.5853 },
-      { nombre:"Tres Trigos – La Frontera", tipo:"pasteleria", lat:6.1763, lng:-75.5840 },
-      { nombre:"Capira – Cl. 10 #37-38", tipo:"comida_rapida", lat:6.2089, lng:-75.5685 }
+      // ——— nuevos (todas con lat/lng para que SIEMPRE rendericen) ———
+      { nombre:"Arepepa (Envigado)", tipo:"restaurante",  lat:6.166390, lng:-75.581110 },   // Cl. 37 Sur #31-55
+      { nombre:"Los Perritos del Mono (Las Palmas)", tipo:"comida_rapida", lat:6.214850, lng:-75.540600 }, // Mirador Las Palmas
+      { nombre:"ISAGEN (Transversal Inferior 10C-280)", tipo:"default", lat:6.204950, lng:-75.565900 },
+      { nombre:"Urb. Saltamonte Grand (Envigado)", tipo:"default", lat:6.174950, lng:-75.582600 }, // 27G con 35 Sur
+      { nombre:"Urb. Balsos de Oviedo", tipo:"default", lat:6.195330, lng:-75.573490 }, // Cra 42 #7A Sur-92
+      { nombre:"¡Hasta la Pizza, Baby!", tipo:"restaurante", lat:6.211790, lng:-75.566680 }, // Cra 35 #8A-81
+      { nombre:"Las Chachas (Envigado)", tipo:"comida_rapida", lat:6.177100, lng:-75.586900 }, // Cra. 43 #36 Sur-17
+      { nombre:"Sushi World – Buena Mesa", tipo:"sushi", lat:6.177557, lng:-75.586216 }, // Cl 30 Sur #44A-45
+      { nombre:"Farmatodo – La Intermedia", tipo:"default", lat:6.171950, lng:-75.585980 }, // Cra 27 #36 Sur-199
+      { nombre:"Trap(p)ani Pizzería (Envigado)", tipo:"restaurante", lat:6.170800, lng:-75.583000 }, // Cl. 39B Sur #29A-37
+      { nombre:"Pizza Loca (Sabaneta)", tipo:"restaurante", lat:6.151900, lng:-75.616100 }, // Cra. 43B #70 Sur-48
+      { nombre:"Bramante (El Poblado)", tipo:"restaurante", lat:6.204700, lng:-75.561700 }, // Cra. 29C #3B Sur-70
+      { nombre:"Casa Verde Miel (Llanogrande)", tipo:"restaurante", lat:6.128500, lng:-75.418900 }, // Km 1 Llanogrande
+      { nombre:"El Coctelazo (Belén La Nubia)", tipo:"comida_rapida", lat:6.198800, lng:-75.585300 }, // Cra 83 #15A-21
+      { nombre:"Tres Trigos – La Frontera", tipo:"pasteleria", lat:6.176300, lng:-75.584000 },
+      { nombre:"Capira – Cl. 10 #37-38", tipo:"comida_rapida", lat:6.208900, lng:-75.568500 }
     ];
 
-    // ——— anti-tapado + validación para que nada rompa ———
+    // ——— evita que marcadores idénticos se tapen ———
     const used = new Map();
-    const nudge = (lat, lng) => {
-      if (typeof lat !== "number" || typeof lng !== "number" || Number.isNaN(lat) || Number.isNaN(lng)) {
-        return null; // inválido -> lo saltamos
-      }
+    const nudge = (lat,lng) => {
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
       const key = `${lat.toFixed(6)},${lng.toFixed(6)}`;
-      const c = (used.get(key) || 0) + 1; used.set(key, c);
-      if (c === 1) return [lat, lng];
-      const r = 0.00012 * c, ang = (c * 137.508) * Math.PI / 180;
-      return [lat + r * Math.sin(ang), lng + r * Math.cos(ang)];
+      const c = (used.get(key) || 0) + 1; used.set(key,c);
+      if (c===1) return [lat,lng];
+      const r=0.00012*c, ang=(c*137.508)*Math.PI/180;
+      return [lat + r*Math.sin(ang), lng + r*Math.cos(ang)];
     };
 
     const bounds = L.latLngBounds([]);
-    let count = 0;
+    let pintados = 0;
 
     for (const l of lugares) {
       try {
         const nudged = nudge(l.lat, l.lng);
         if (!nudged) { console.warn("Coordenada inválida:", l); continue; }
-        const [lat, lng] = nudged;
-        L.marker([lat, lng], { icon: makePrettyIcon(l.tipo, l.nombre) })
+        const [lat,lng] = nudged;
+        L.marker([lat,lng], { icon: makePrettyIcon(l.tipo, l.nombre) })
           .addTo(map)
           .bindPopup(`<b>${l.nombre}</b>`)
           .bindTooltip(l.nombre, { direction:"top" });
-        bounds.extend([lat, lng]);
-        count++;
+        bounds.extend([lat,lng]);
+        pintados++;
       } catch (e) {
         console.error("Error dibujando", l.nombre, e);
       }
@@ -116,7 +118,7 @@ function Mapa2() {
 
     if (bounds.isValid()) map.fitBounds(bounds.pad(0.15));
     setTimeout(()=>map.invalidateSize(),0);
-    console.log(`Marcadores pintados: ${count}/${lugares.length}`);
+    console.log(`✅ Marcadores pintados: ${pintados}/${lugares.length}`);
 
     return ()=>{ map.remove(); document.head.removeChild(style); };
   }, []);
@@ -125,4 +127,3 @@ function Mapa2() {
 }
 
 export default Mapa2;
-
